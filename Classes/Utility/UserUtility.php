@@ -284,11 +284,14 @@ class UserUtility extends AbstractUtility
      */
     public static function checkFrontendSessionToUser(User $user)
     {
-        $select = 'ses_id';
-        $from = 'fe_sessions';
-        $where = 'ses_userid = ' . (int)$user->getUid();
-        $res = self::getDatabaseConnection()->exec_SELECTquery($select, $from, $where);
-        $row = self::getDatabaseConnection()->sql_fetch_assoc($res);
+        $queryBuilder = self::getDatabaseConnection()->getQueryBuilderForTable('fe_sessions');
+        $row = $queryBuilder->select('ses_id')
+            ->from('fe_sessions')
+            ->where(
+                $queryBuilder->expr()->eq('ses_userid', (int)$user->getUid())
+            )
+            ->execute()
+            ->fetch();
         return !empty($row['ses_id']);
     }
 
